@@ -1,0 +1,16 @@
+{
+  "name": "記帳管家",
+  "short_name": "記帳管家",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='90' fill='%230D0D0D'/><circle cx='256' cy='256' r='140' stroke='%23FFDE68' stroke-width='22' fill='none'/><path d='M256 256 L256 116 A140 140 0 0 1 363 185 Z' fill='%23FFDE68'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
