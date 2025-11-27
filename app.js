@@ -261,3 +261,51 @@ function drawLineChart(data) {
     },
   });
 }
+/*************************************************
+ *  🔥 月結存錢環形動畫
+ *************************************************/
+function drawSavingCircle(saved, target) {
+  const canvas = document.getElementById("savingCircle");
+  const ctx = canvas.getContext("2d");
+  const radius = 70;
+  const center = 90;
+
+  const percent = Math.min(saved / target, 1);
+
+  let progress = 0;
+
+  function animate() {
+    ctx.clearRect(0, 0, 180, 180);
+
+    // 背景圓
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(255, 222, 104, 0.2)";
+    ctx.lineWidth = 12;
+    ctx.arc(center, center, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 金色進度圓
+    ctx.beginPath();
+    ctx.strokeStyle = "#FFDE68";
+    ctx.lineWidth = 12;
+    ctx.lineCap = "round";
+    ctx.arc(center, center, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+    ctx.stroke();
+
+    // 中心文字
+    ctx.fillStyle = "#FFDE68";
+    ctx.font = "16px Inter";
+    ctx.textAlign = "center";
+    ctx.fillText(`已存 ${saved}`, center, center - 5);
+    ctx.font = "13px Inter";
+    ctx.fillText(`目標 ${target}`, center, center + 18);
+
+    if (progress < percent) {
+      progress += 0.01;
+      requestAnimationFrame(animate);
+    }
+  }
+
+  animate();
+}
+
