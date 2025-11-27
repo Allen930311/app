@@ -1,5 +1,5 @@
-/*************************************************
- *  記帳管家 BlackGold Edition — app.js (完整版)
+//*************************************************
+ *  記帳管家 BlackGold Edition — FINAL app.js
  *************************************************/
 
 const API =
@@ -15,7 +15,7 @@ const alertArea = document.getElementById("alertArea");
 const coachAdvice = document.getElementById("coachAdvice");
 const progressBar = document.getElementById("progressBar");
 
-// 圖表 instance（避免重複生成）
+// 圖表實例（避免重複生成）
 let pieChart = null;
 let lineChart = null;
 
@@ -26,7 +26,7 @@ const categories = ["FOOD", "CAFE", "TRPT", "SHOP", "PLAY", "LIFE", "SUBS"];
 const smartTicker = document.getElementById("smartTicker");
 
 categories.forEach((cat) => {
-  let btn = document.createElement("button");
+  const btn = document.createElement("button");
   btn.className = "ticker-btn";
   btn.innerText = cat;
   btn.onclick = () => (currentCategory = cat);
@@ -40,7 +40,7 @@ async function loadDashboard() {
   const res = await fetch(API);
   const data = await res.json();
 
-  // ★ Accounts 儀表板
+  // 儀表板文字
   document.getElementById("monthSpent").innerText =
     `${data.monthSpent} / ${data.conf["monthly_budget"]}`;
 
@@ -50,50 +50,46 @@ async function loadDashboard() {
   document.getElementById("dailyLimit").innerText =
     `今日可花：${data.dailyLimit}`;
 
-  // ★ 金色進度條
-  const percent =
-    (data.monthSpent / data.conf["monthly_budget"]) * 100 || 0;
+  // 進度條
+  const percent = (data.monthSpent / data.conf["monthly_budget"]) * 100 || 0;
   progressBar.style.width = `${Math.min(percent, 100)}%`;
 
-  // ★ 警告 & Coach
+  // 警告、教練、紀錄
   renderAlerts(data);
   renderCoach(data);
-
-  // ★ 讀取紀錄
   renderRecords(data.records);
 
-  // ★ 圖表
+  // 圖表
   drawPieChart(data.chartByCategory);
   drawLineChart(data.chart7days);
+
+  // 月結存錢環形圖
+  drawSavingCircle(data.estimateSaving, data.conf["saving_target"]);
 }
 
 loadDashboard();
 
 /*************************************************
- *  理財教練（AI 本地端分析）
+ *  理財教練（本地 AI）
  *************************************************/
 function renderCoach(data) {
   const list = [];
 
-  // 食物費超標？
+  // 食物費偏高？
   const food = data.chartByCategory["FOOD"] || 0;
-  const avgFood = 0.25 * data.conf["monthly_budget"] / 4; // 每週 25%
-  if (food > avgFood) {
-    list.push("⚠️ 食物費偏高，建議這週外食減少 15%。");
-  }
+  const foodLimit = (data.conf["monthly_budget"] * 0.25) / 4;
+  if (food > foodLimit) list.push("⚠️ 食物費偏高，建議這週外食減少 15%。");
 
   // 娛樂費偏高？
   const play = data.chartByCategory["PLAY"] || 0;
-  const limitPlay = data.conf["monthly_budget"] * 0.1;
-  if (play > limitPlay) {
-    list.push("🎮 娛樂費逼近上限，建議先避免大額消費。");
-  }
+  const playLimit = data.conf["monthly_budget"] * 0.1;
+  if (play > playLimit) list.push("🎮 娛樂費逼近上限，建議先避免大額消費。");
 
-  // 儲蓄建議
+  // 存錢進度
   if (data.estimateSaving < data.conf["saving_target"]) {
-    list.push("📉 本月存款進度落後，建議先降低非必要消費。");
+    list.push("📉 本月存款進度落後，建議降低非必要消費。");
   } else {
-    list.push("🟢 本月儲蓄進度正常，維持目前習慣即可！");
+    list.push("🟢 本月儲蓄正常，維持目前習慣即可！");
   }
 
   coachAdvice.innerHTML = list.join("<br>");
@@ -138,7 +134,7 @@ async function saveRecord() {
 document.getElementById("save").onclick = saveRecord;
 
 /*************************************************
- *  鍵盤事件
+ *  數字鍵盤
  *************************************************/
 document.querySelectorAll(".num-btn").forEach((btn) => {
   btn.onclick = () => {
@@ -178,15 +174,12 @@ function renderRecords(records) {
 }
 
 /*************************************************
- *  刪除紀錄（DELETE）
+ *  刪除紀錄
  *************************************************/
 async function deleteRecord(id) {
   await fetch(API, {
     method: "POST",
-    body: JSON.stringify({
-      action: "delete",
-      id: id,
-    }),
+    body: JSON.stringify({ action: "delete", id }),
   });
 
   loadDashboard();
@@ -261,6 +254,7 @@ function drawLineChart(data) {
     },
   });
 }
+
 /*************************************************
  *  🔥 月結存錢環形動畫
  *************************************************/
@@ -271,7 +265,6 @@ function drawSavingCircle(saved, target) {
   const center = 90;
 
   const percent = Math.min(saved / target, 1);
-
   let progress = 0;
 
   function animate() {
@@ -309,3 +302,50 @@ function drawSavingCircle(saved, target) {
   animate();
 }
 
+/*************************************************
+ *  🎤 語音記帳（中文）
+ *************************************************/
+const voiceBtn = document.getElementById("voiceBtn");
+
+function startVoiceInput() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("你的瀏覽器不支援語音輸入");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "zh-TW";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const text = event.results[0][0].transcript;
+    console.log("語音辨識：", text);
+
+    // 解析數字
+    const num = text.replace(/[^\d]/g, "");
+    if (num) {
+      amount = num;
+      amountDisplay.textContent = amount;
+    }
+
+    // 關鍵字 → 類別自動判斷
+    if (text.includes("餐") || text.includes("吃")) currentCategory = "FOOD";
+    if (text.includes("咖啡")) currentCategory = "CAFE";
+    if (text.includes("交通") || text.includes("車")) currentCategory = "TRPT";
+    if (text.includes("買") || text.includes("衣")) currentCategory = "SHOP";
+    if (text.includes("玩") || text.includes("遊戲") || text.includes("娛樂"))
+      currentCategory = "PLAY";
+    if (text.includes("生活") || text.includes("用品")) currentCategory = "LIFE";
+    if (text.includes("訂閱") || text.includes("會員")) currentCategory = "SUBS";
+  };
+
+  recognition.onerror = (e) => alert("語音辨識錯誤：" + e.error);
+}
+
+if (voiceBtn) voiceBtn.onclick = startVoiceInput;
