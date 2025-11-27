@@ -3,19 +3,23 @@ const API = "https://script.google.com/macros/s/AKfycbxbOJKAuODxSp4T-IX5y4B5MKU5
 let currentCategory = "FOOD";
 let amount = "";
 
+// 取得輸入框 DOM
+const amountDisplay = document.getElementById("amountDisplay");
+
 // Smart Ticker（固定 7 個）
-const categories = ["FOOD","CAFE","TRPT","SHOP","PLAY","LIFE","SUBS"];
+const categories = ["FOOD", "CAFE", "TRPT", "SHOP", "PLAY", "LIFE", "SUBS"];
 const smartTicker = document.getElementById("smartTicker");
-categories.forEach(cat=>{
-  let btn=document.createElement("button");
-  btn.innerText=cat;
-  btn.className="ticker-btn";
-  btn.onclick=()=>{ currentCategory=cat; };
+
+categories.forEach(cat => {
+  let btn = document.createElement("button");
+  btn.innerText = cat;
+  btn.className = "ticker-btn";
+  btn.onclick = () => { currentCategory = cat; };
   smartTicker.appendChild(btn);
 });
 
 // 讀取 Dashboard 資料
-async function loadDashboard(){
+async function loadDashboard() {
   const res = await fetch(API);
   const data = await res.json();
 
@@ -31,7 +35,7 @@ async function loadDashboard(){
   const alertArea = document.getElementById("alertArea");
   alertArea.innerHTML = "";
 
-  if(data.estimateSaving < data.conf["saving_target"]){
+  if (data.estimateSaving < data.conf["saving_target"]) {
     alertArea.innerHTML += `
       <div class="gold-border rounded-xl p-3">
         ⚠ 存款低於目標（${data.estimateSaving} / ${data.conf["saving_target"]}）
@@ -40,36 +44,41 @@ async function loadDashboard(){
 }
 loadDashboard();
 
-// 鍵盤邏輯
-document.querySelectorAll(".key-btn").forEach(btn=>{
-  btn.onclick=()=>{
-    const val = btn.innerText;
+// 🟦 數字鍵盤邏輯 + 顯示在輸入框
+document.querySelectorAll(".num-btn").forEach(btn => {
+  btn.onclick = () => {
+    const val = btn.dataset.value;
 
-    if(val==="←"){
+    if (val === "back") {
       amount = amount.slice(0, -1);
-      return;
+    } else {
+      amount += val;
     }
-    if(val==="記帳✓"){
-      saveRecord();
-      return;
-    }
-    amount += val;
+
+    // 更新畫面
+    amountDisplay.textContent = amount || "0";
   };
 });
 
 // 記帳
 async function saveRecord() {
-  if(amount === "") return;
+  if (amount === "") return;
 
   await fetch(API, {
-    method:"POST",
-    body:JSON.stringify({
-      category:currentCategory,
-      amount:amount,
-      device:"mobile"
+    method: "POST",
+    body: JSON.stringify({
+      category: currentCategory,
+      amount: amount,
+      device: "mobile"
     })
   });
 
-  amount="";
+  // 清空
+  amount = "";
+  amountDisplay.textContent = "0";
+
   loadDashboard();
 }
+
+// 綁定 按下「記帳✓」按鈕
+document.getElementById("save").onclick = saveRecord;
