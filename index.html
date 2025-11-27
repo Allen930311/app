@@ -60,26 +60,33 @@
 <!-- Smart Ticker -->
 <div id="smartTicker" class="flex flex-wrap gap-2 mb-12"></div>
 
-<!-- 🧮 鍵盤 -->
-<div class="grid grid-cols-4 gap-3">
-  <div class="key-btn">1</div>
-  <div class="key-btn">2</div>
-  <div class="key-btn">3</div>
-  <div class="key-btn" id="del">←</div>
+<!-- 🟦 輸入顯示框 -->
+<div id="amountDisplay"
+     class="w-full mb-8 p-4 text-right text-3xl font-bold"
+     style="border:2px solid #FFDE68; border-radius:12px; color:#FFDE68;">
+  0
+</div>
 
-  <div class="key-btn">4</div>
-  <div class="key-btn">5</div>
-  <div class="key-btn">6</div>
+<!-- 🧮 數字鍵盤 -->
+<div class="grid grid-cols-4 gap-3">
+  <div class="key-btn num-btn" data-value="1">1</div>
+  <div class="key-btn num-btn" data-value="2">2</div>
+  <div class="key-btn num-btn" data-value="3">3</div>
+  <div class="key-btn num-btn" data-value="back">←</div>
+
+  <div class="key-btn num-btn" data-value="4">4</div>
+  <div class="key-btn num-btn" data-value="5">5</div>
+  <div class="key-btn num-btn" data-value="6">6</div>
   <div class="key-btn bg-[#E2C572] text-black font-bold" id="save">記帳✓</div>
 
-  <div class="key-btn">7</div>
-  <div class="key-btn">8</div>
-  <div class="key-btn">9</div>
+  <div class="key-btn num-btn" data-value="7">7</div>
+  <div class="key-btn num-btn" data-value="8">8</div>
+  <div class="key-btn num-btn" data-value="9">9</div>
   <div></div>
 
-  <div class="key-btn">.</div>
-  <div class="key-btn">0</div>
-  <div class="key-btn">00</div>
+  <div class="key-btn num-btn" data-value=".">.</div>
+  <div class="key-btn num-btn" data-value="0">0</div>
+  <div class="key-btn num-btn" data-value="00">00</div>
   <div></div>
 </div>
 
