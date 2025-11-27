@@ -136,19 +136,24 @@ document.getElementById("save").onclick = saveRecord;
 /*************************************************
  *  數字鍵盤
  *************************************************/
-document.querySelectorAll(".num-btn").forEach((btn) => {
+document.querySelectorAll(".key-btn").forEach((btn) => {
   btn.onclick = () => {
-    const v = btn.dataset.value;
+    const v = btn.innerText;
 
-    if (v === "back") {
+    if (v === "←") {
       amount = amount.slice(0, -1);
-    } else {
+    } 
+    else if (v === "記帳✓") {
+      saveRecord();
+    } 
+    else {
       amount += v;
     }
 
     amountDisplay.textContent = amount || "0";
   };
 });
+
 
 /*************************************************
  *  歷史紀錄呈現
@@ -349,3 +354,4 @@ function startVoiceInput() {
 }
 
 if (voiceBtn) voiceBtn.onclick = startVoiceInput;
+
