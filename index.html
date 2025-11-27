@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>記帳管家</title>
+  <title>記帳管家 · BlackGold Edition</title>
 
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link rel="manifest" href="manifest.json">
 
   <script>
@@ -14,70 +19,81 @@
     }
   </script>
 
-  <style>
-    body { 
-      background:#0D0D0D; 
-      font-family: 'Inter', sans-serif;
-      color:#FFDE68;
-    }
-    .gold-border { border:1.5px solid #E2C572; }
-    .ticker-btn {
-      border:1.5px solid #E2C572; 
-      border-radius:12px; 
-      padding:8px 14px;
-      color:#FFDE68;
-    }
-    .ticker-btn:active { background:#1c1c1c; }
-    .key-btn {
-      border:1.5px solid #E2C572;
-      border-radius:12px;
-      padding:18px;
-      text-align:center;
-      font-size:20px;
-      font-weight:600;
-      background:#0D0D0D;
-      color:#FFDE68;
-    }
-    .key-btn:active {
-      background:#1A1A1A;
-      box-shadow:0 0 8px #E2C572;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="p-5">
+<body class="bg-black text-gold px-5 pb-20">
 
-<!-- 📊 KPI 區 -->
-<div id="kpi" class="mb-8 space-y-2 text-[#FFDE68]">
-  <div class="text-3xl font-bold" id="monthSpent">-- / --</div>
-  <div class="text-xl font-bold" id="savingEstimate">預估可存：--</div>
-  <div class="text-3xl font-bold" id="dailyLimit">今日可花：--</div>
-</div>
+<!-- ⭐ PREMIUM HEADER -->
+<header class="premium-header">
+  <div class="flex justify-between items-center">
+    <div class="text-xl font-bold tracking-wide">記帳管家</div>
+    <div class="text-sm opacity-70">⚙️</div>
+  </div>
+  <div class="text-xs mt-1 opacity-70">Premium Financial Dashboard</div>
+</header>
+
+<!-- 📊 圖表區（圓餅大、折線小） -->
+<section class="charts-section mt-6">
+
+  <!-- Pie Chart Card -->
+  <div class="chart-card mb-6">
+    <div class="chart-title">本月類別分布</div>
+    <canvas id="pieChart"></canvas>
+  </div>
+
+  <!-- Line Chart Card -->
+  <div class="chart-card mb-6">
+    <div class="chart-title">最近 7 日支出走勢</div>
+    <canvas id="lineChart"></canvas>
+  </div>
+
+</section>
+
+<!-- 💰 Accounts（本月總覽儀表板） -->
+<section class="account-card mt-8 mb-8">
+  <div class="flex justify-between items-center mb-2">
+    <div class="text-lg font-semibold">本月總覽</div>
+    <div class="text-xs opacity-70">Monthly Dashboard</div>
+  </div>
+
+  <div id="monthSpent" class="account-number-large">-- / --</div>
+
+  <!-- 環形條（用 CSS 模擬） -->
+  <div class="progress-wrapper mt-3">
+    <div id="progressBar" class="progress-inner"></div>
+  </div>
+
+  <div id="savingEstimate" class="account-number-small mt-3">預估可存：--</div>
+  <div id="dailyLimit" class="account-number-small">今日可花：--</div>
+</section>
+
+<!-- 🧠 理財教練 -->
+<section class="coach-card mb-8">
+  <div class="coach-title">理財建議</div>
+  <div id="coachAdvice" class="coach-content"></div>
+</section>
 
 <!-- ⚠️ 警告卡片 -->
 <div id="alertArea" class="space-y-3 mb-10"></div>
 
 <!-- Smart Ticker -->
-<div id="smartTicker" class="flex flex-wrap gap-2 mb-12"></div>
+<div id="smartTicker" class="flex flex-wrap gap-2 mb-6"></div>
 
-<!-- 🟦 輸入顯示框 -->
-<div id="amountDisplay"
-     class="w-full mb-8 p-4 text-right text-3xl font-bold"
-     style="border:2px solid #FFDE68; border-radius:12px; color:#FFDE68;">
-  0
-</div>
+<!-- 💵 輸入金額 -->
+<div id="amountDisplay" class="amount-display">0</div>
 
-<!-- 🧮 數字鍵盤 -->
-<div class="grid grid-cols-4 gap-3">
+<!-- 🔢 鍵盤 -->
+<div class="grid grid-cols-4 gap-3 mb-10">
   <div class="key-btn num-btn" data-value="1">1</div>
   <div class="key-btn num-btn" data-value="2">2</div>
   <div class="key-btn num-btn" data-value="3">3</div>
-  <div class="key-btn num-btn" data-value="back">←</div>
+  <div class="key-btn num-btn" data-value="back">⌫</div>
 
   <div class="key-btn num-btn" data-value="4">4</div>
   <div class="key-btn num-btn" data-value="5">5</div>
   <div class="key-btn num-btn" data-value="6">6</div>
-  <div class="key-btn bg-[#E2C572] text-black font-bold" id="save">記帳✓</div>
+  <div id="save" class="key-btn save-btn">記帳✓</div>
 
   <div class="key-btn num-btn" data-value="7">7</div>
   <div class="key-btn num-btn" data-value="8">8</div>
@@ -89,6 +105,10 @@
   <div class="key-btn num-btn" data-value="00">00</div>
   <div></div>
 </div>
+
+<!-- 📝 歷史紀錄 -->
+<h2 class="history-title">消費紀錄</h2>
+<div id="recordList" class="space-y-3 mb-20"></div>
 
 <script src="app.js"></script>
 </body>
